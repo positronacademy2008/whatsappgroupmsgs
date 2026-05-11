@@ -1,32 +1,29 @@
 name: Send WhatsApp Message Workflow
 
-# Ye workflow tab chalega jab aap manual "Run workflow" button dabayenge
 on:
   workflow_dispatch:
+    inputs:
+      phone_number:
+        description: 'Kise bhejna hai? (Ex: 9198XXXXXXXX)'
+        required: true
+        default: '91'
+      message_text:
+        description: 'Kya message bhejna hai?'
+        required: true
+        default: 'Hello from GitHub!'
 
 jobs:
   whatsapp-job:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. GitHub repo se code nikalne ke liye
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # 2. Node.js setup karne ke liye
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      # 3. Axios aur baki libraries install karne ke liye
-      - name: Install Dependencies
-        run: npm install
-
-      # 4. index.js file ko run karne ke liye
-      - name: Run Script
-        run: node index.js
+      - run: npm install
+      - run: node index.js
         env:
-          # Ye variables GitHub Secrets se connect hain
           WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
           PHONE_NUMBER_ID: ${{ secrets.PHONE_NUMBER_ID }}
+          RECIPIENT_NUMBER: ${{ github.event.inputs.phone_number }}
+          MESSAGE_BODY: ${{ github.event.inputs.message_text }}

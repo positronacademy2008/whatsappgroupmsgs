@@ -1,49 +1,29 @@
-// index.js - WhatsApp Message Sending Script
 const axios = require('axios');
 
-// --- CONFIGURATION ---
-// Inhe aap GitHub Secrets se connect karenge (Security ke liye)
+// GitHub Actions se data uthayega
 const ACCESS_TOKEN = process.env.WHATSAPP_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
-const VERSION = 'v20.0'; // Latest API version
-
-// --- MESSAGE SETTINGS ---
-const RECIPIENT_NUMBER = '91XXXXXXXXXX'; // Yahan apna ya group ka number dalein (with country code)
-const MESSAGE_BODY = 'Hello! Ye message GitHub Actions ke zariye bheja gaya hai. 🚀';
+const RECIPIENT_NUMBER = process.env.RECIPIENT_NUMBER; // Jo aapne button dabate waqt dala
+const MESSAGE_BODY = process.env.MESSAGE_BODY;       // Jo aapne button dabate waqt dala
 
 async function sendMessage() {
-    const url = `https://graph.facebook.com/${VERSION}/${PHONE_NUMBER_ID}/messages`;
+    const url = `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`;
 
     const data = {
         messaging_product: "whatsapp",
-        recipient_type: "individual",
         to: RECIPIENT_NUMBER,
         type: "text",
-        text: {
-            preview_url: false,
-            body: MESSAGE_BODY
-        }
-    };
-
-    const headers = {
-        'Authorization': `Bearer ${ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
+        text: { body: MESSAGE_BODY }
     };
 
     try {
-        console.log("Sending message...");
-        const response = await axios.post(url, data, { headers });
-        console.log("✅ Success! Message ID:", response.data.messages[0].id);
+        const response = await axios.post(url, data, {
+            headers: { 'Authorization': `Bearer ${ACCESS_TOKEN}` }
+        });
+        console.log("✅ Message Sent to:", RECIPIENT_NUMBER);
     } catch (error) {
-        console.error("❌ Error!");
-        if (error.response) {
-            console.error("Status:", error.response.status);
-            console.error("Details:", JSON.stringify(error.response.data, null, 2));
-        } else {
-            console.error("Message:", error.message);
-        }
+        console.error("❌ Failed!", error.response ? error.response.data : error.message);
     }
 }
 
-// Function ko call karein
 sendMessage();
